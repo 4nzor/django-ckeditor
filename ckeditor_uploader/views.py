@@ -136,6 +136,7 @@ def get_files_browse_urls(user=None):
     Recursively walks all dirs under upload dir and generates a list of
     thumbnail and full image URL's for each file found.
     """
+    absolute_path = getattr(settings, 'CKEDITOR_UPLOADER_ABSOLUTE_PATH_PREFIX', '')
     files = []
     for filename in get_image_files(user=user):
         src = utils.get_media_url(filename)
@@ -150,9 +151,10 @@ def get_files_browse_urls(user=None):
         else:
             thumb = src
             visible_filename = os.path.split(filename)[1]
+
         files.append({
             'thumb': thumb,
-            'src': src,
+            'src': absolute_path + src,
             'is_image': is_image(src),
             'visible_filename': visible_filename,
         })
