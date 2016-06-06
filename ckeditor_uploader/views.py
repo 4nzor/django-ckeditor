@@ -48,6 +48,7 @@ class ImageUploadView(generic.View):
         """
         Uploads a file and send back its URL to CKEditor.
         """
+        absolute_path = getattr(settings, 'CKEDITOR_UPLOADER_ABSOLUTE_PATH_PREFIX', '')
         uploaded_file = request.FILES['upload']
 
         backend = image_processing.get_backend()
@@ -71,7 +72,7 @@ class ImageUploadView(generic.View):
         return HttpResponse("""
         <script type='text/javascript'>
             window.parent.CKEDITOR.tools.callFunction({0}, '{1}');
-        </script>""".format(ck_func_num, url))
+        </script>""".format(ck_func_num, absolute_path + url))
 
     @staticmethod
     def _save_file(request, uploaded_file):
@@ -151,7 +152,6 @@ def get_files_browse_urls(user=None):
         else:
             thumb = src
             visible_filename = os.path.split(filename)[1]
-
         files.append({
             'thumb': thumb,
             'src': absolute_path + src,
