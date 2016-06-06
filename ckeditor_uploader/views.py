@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import os
+import hashlib
 from datetime import datetime
 
 from django.conf import settings
@@ -20,7 +21,10 @@ from django.utils.html import escape
 def get_upload_filename(upload_name, user):
     # If CKEDITOR_RESTRICT_BY_USER is True upload file to user specific path.
     if getattr(settings, 'CKEDITOR_RESTRICT_BY_USER', False):
-        user_path = user.username
+        if getattr(settings, 'CKEDITOR_RESTRICT_BY_USER_ID', False):
+            user_path = hashlib.md5(str(user.id ** 2).encode()).hexdigest()[:16]
+        else:
+            user_path = user.username
     else:
         user_path = ''
 
@@ -95,8 +99,12 @@ def get_image_files(user=None, path=''):
     STORAGE_FILES = 1
 
     restrict = getattr(settings, 'CKEDITOR_RESTRICT_BY_USER', False)
+    restrict_by_id = getattr(settings, 'CKEDITOR_RESTRICT_BY_USER_ID', False)
     if user and not user.is_superuser and restrict:
-        user_path = user.username
+        if restrict_by_id:
+            user_path = hashlib.md5(str(user.id ** 2).encode()).hexdigest()[:16]
+        else:
+            user_path = user.username
     else:
         user_path = ''
 
